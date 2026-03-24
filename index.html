@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CuraPharm Pharmacy First Screener</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#15304a;--muted:#5d7287;--line:#dce6f0;--brand:#0f4c81;--brand2:#1e6aa8;--green:#1f8f4e;--amber:#c87b00;--red:#c53a3a;--greenbg:#e9f8ef;--amberbg:#fff4df;--redbg:#fdeaea;--radius:20px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 18px rgba(17,50,84,.06)}
+.header{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.header img{height:64px;width:auto;border-radius:12px;background:#fff;padding:4px;object-fit:contain}
+.title{font-size:26px;font-weight:700}
+.subtitle{font-size:14px;color:var(--muted);margin-top:2px}
+.content{padding:18px}
+.step{display:none}
+.step.active{display:block}
+.question{font-size:28px;line-height:1.2;font-weight:700;margin:8px 0 18px}
+.help{font-size:16px;color:var(--muted);margin-bottom:18px}
+.options{display:grid;gap:12px}
+.btn{width:100%;border:none;border-radius:18px;padding:18px 16px;font-size:22px;font-weight:700;text-align:left;background:#f8fbff;color:var(--text);border:2px solid var(--line);cursor:pointer}
+.btn:active{transform:scale(.995)}
+.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border:none;text-align:center}
+.bar{height:10px;background:#e7eef5;border-radius:999px;overflow:hidden;margin:8px 0 0}
+.fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0%}
+.topline{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px}
+.back{margin-top:16px;background:#fff}
+.result{display:none;padding:24px}
+.result.active{display:block}
+.panel{min-height:54vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border-radius:24px;padding:28px 18px}
+.panel.green{background:var(--greenbg);border:2px solid #bfe7cd}
+.panel.amber{background:var(--amberbg);border:2px solid #f1d08b}
+.panel.red{background:var(--redbg);border:2px solid #efb3b3}
+.icon{font-size:90px;line-height:1}
+.big{font-size:42px;font-weight:800;line-height:1.08;margin:14px 0}
+.desc{font-size:22px;line-height:1.35;max-width:700px}
+.staff{margin-top:16px;font-size:18px;font-weight:700}
+.actions{display:grid;gap:12px;max-width:560px;width:100%;margin-top:24px}
+.timer{font-size:14px;color:var(--muted);margin-top:10px}
+.row{display:grid;gap:12px}
+.input{width:100%;border:2px solid var(--line);border-radius:16px;padding:16px 14px;font-size:20px;background:#fff;color:var(--text)}
+.label{font-size:18px;font-weight:700;margin-bottom:8px}
+.note{font-size:14px;color:var(--muted);line-height:1.4}
+.pill{display:inline-block;background:#eef5fb;border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:13px;color:var(--muted);margin-top:8px}
+.summary{width:100%;max-width:700px;background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:16px;text-align:left}
+.resultPath{display:inline-block;margin-top:2px;margin-bottom:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.08);font-size:15px;font-weight:700}
+.quickBox{width:100%;max-width:700px;background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:16px;text-align:left;margin-top:14px}
+.quickTitle{font-size:15px;font-weight:800;margin-bottom:8px}
+.quickGrid{display:grid;gap:8px}
+.quickItem{font-size:16px}
+.summary div{font-size:16px;margin:6px 0}
+.consent{display:flex;gap:10px;align-items:flex-start;background:#f8fbff;border:1px solid var(--line);border-radius:16px;padding:14px}
+.consent input{width:22px;height:22px;margin-top:2px}
+.small{font-size:14px;color:var(--muted)}
+.staffResetWrap{margin-top:18px;text-align:center}
+.staffResetBtn{opacity:.45;font-size:12px;padding:10px 14px;border-radius:999px;border:1px dashed #9fb3c8;background:#fff;color:#44607a}
+.staffHint{font-size:12px;color:var(--muted);margin-top:6px;display:none}
+@media (min-width:700px){.options.two{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+    <div class="header">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABsCAMAAADnjH+fAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA/VpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDY3IDc5LjE1Nzc0NywgMjAxNS8wMy8zMC0yMzo0MDo0MiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ1dWlkOjVEMjA4OTI0OTNCRkRCMTE5MTRBODU5MEQzMTUwOEM4IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkJBRTRGNUZEMEJDODExRUI5RTZFRTg3MEUwNDk4MDk2IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkJBRTRGNUZDMEJDODExRUI5RTZFRTg3MEUwNDk4MDk2IiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIwMTUgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODNkNzliNzktY2M4Mi03NDQ2LWJjNGUtNmY0MTFhZTJkNmJhIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjgzZDc5Yjc5LWNjODItNzQ0Ni1iYzRlLTZmNDExYWUyZDZiYSIvPiA8ZGM6dGl0bGU+IDxyZGY6QWx0PiA8cmRmOmxpIHhtbDpsYW5nPSJ4LWRlZmF1bHQiPlByaW50PC9yZGY6bGk+IDwvcmRmOkFsdD4gPC9kYzp0aXRsZT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz44s7VeAAADAFBMVEXLy8tllsoAAABZiMJ5raRsos02tVXExMTT09N5m8x5xHXX79We1ZZZuUkyZbFVVVW25MFGRkbb5PLw8PCk2q5WwGk6OjoerEKc0pih0p2rq6smsEpjvVmZs9mt0clrwWVZulZBcba0tLSJqNTu7u44iY6VzpKXx6d5zonz+vUosEskJCSLi4uAyYb8/Pyovt7j6vXD1Orx9foirkU/uF18fHycnJzq9+0ylXdtbW2jo6M1aLLH6Mrh4eGTk5P5+flBtUltl88TExNljMUjskNzwmvm5ubp6elLu2P6+vqDg4Mlr0j09PR0dHQ8bbXX8N2Ls7k5arRpvmDt8fizxuLd3d3t9fNhYWGt37q+vr6twuKEyH9DdLlcvWJMerw8arr8/vxznNQotEUzs0rZ2dkssU2a0JjS3e739/dSuEhXgr86bLU6tEr8/f7X4++90etSpZCArMAopldFbr2TyZqRrdWJyoQ5dqchskv2+PyNy4n4+v3h9OaQzY25ubn6/P1Ml4ldksdHtkk0fJmL0IpOgb4/cLbe8+MroWBRtkDO2uy0yeWLwpqS0oswZLH6/fuHvJ5CtUNXiq1owXBRfb1gwHGDzYhWfsF80JHt9+1vyYW7zOXo7vdKtkOM1Z8zs0XN2/Jon6cmXa4ssUs9tEMbsEQcq0AqsEuOwL5WuUehut0za6k3arM/b7YpsEvl9udNuEtBc7LL7NNKtDlMhqeZzpz9/f1Hers9brRuxHg9bLg8brY7cK/u+fCVz5TI1uoqs0vP6s1bkaRJd7onsUuY0JU0ZLbv9vXA0eVCdbJ5zY/m7fZFdbhDcrZmx30nskcpsUosYLE3aLf////+/v7H2O7+//7+/v+f0pv+//87bLMvs0k8bbNNf7Als0sxs1H2+/ZXtk9du0zw+O+bv8jz8/O5zug5Zrm3trbV4PCCxqQvLy9Ork6QxJ99xn3s7OwqrFJ/oNBGd7OcuN3///5naGh9s562zOn19fXB479DdbTe8N1DfKo1uE7f5/P///9khhJuAAABAHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AU/cHJQAAFW1JREFUeNrsnQ9cE1e2x+OwEmghNGITTKQaQFqSGDERKsQQCTQQArEReRiqojyElIjttostRWEtrVv1NdpWuu2Wravu4uqG1PdeGxG1tbW67iqVdqYittUub/kUN69SV3lLt13uu/fOhAQIAf/1Uwg//JjJ5M7NzHfOOffcO3cyLHDLouLnBAecKUvdH98GxrdYt1pBzRtpF5o2tbSIRE2fp10mJ2D50OUVXzW3tLRsakLAGpXR5f4Oa+XRB4fR0ftqZ9V+//cnRQHBwWkXLrS02FId/gyLXP/aJQV/OKUXFRUde+FxOXS/NnmkEdKK9GNY2/7cwBfafar1bNFHcbhwKaSl7PNbWHHz+Ha7WOgp/SAp9Pa9Cv0vcPE3jC2fp5J+CmtbJn+vXbhn4YEDMw/MzJw5c+ZyWnXLX0E69MqhQ4fqAvXCvXr9UZxFBIhabKf9FNabDXvF4oUdHdOnT188ffGMGTMeeuihu6CuPPLII+vWPbNhQ2zsiYh3D63W2xV157Bp2VqMc/wT1oMNYrv42Y6OmYjW9MWLFyNYGNcVjOsZjKtk2uzVQnvDf6Et5IaWxjSHX8J6k28Xrwnt6OjY95fQmR0zGWAu81q37rkXn4G8TpRMO6QXK+pQrKpsEbWIKmr8ENbKeULxnkdDO/bNeP91mFS93q//wfrJBx988PB3C6bFlkREzIO0YItYHtwEM9S0SWb/gxWnEAvXhIaGTv/S26dtZc3N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" alt="CuraPharm logo">
+      <div><div class="title">CuraPharm Chemist</div><div class="subtitle">Pharmacy First quick screener</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="content" id="main">
+      <div class="topline"><span id="stepLabel">Step 1 of 5</span><span>Local iPad version</span></div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+
+      <div class="step active" data-step="0">
+        <div class="question">Patient details</div>
+        <div class="help">These details can be used to create an NHSmail for the pharmacist.</div>
+        <div class="row">
+          <div><div class="label">Patient name</div><input id="patientName" class="input" placeholder="Enter full name"></div>
+          <div><div class="label">Date of birth</div><input id="patientDob" class="input" type="date"></div>
+          <div><div class="label">Phone number</div><input id="patientPhone" class="input" inputmode="tel" placeholder="Enter phone number"></div>
+        </div>
+        <div class="consent" style="margin-top:14px">
+          <input id="consentTick" type="checkbox">
+          <div>
+            <div style="font-weight:700">Consent to use details for handover</div>
+            <div class="small">Patient confirms these details can be shared with the pharmacist for today’s Pharmacy First assessment.</div>
+          </div>
+        </div>
+        <div class="pill">Optional details, but useful for staff handover</div>
+        <div class="options" style="margin-top:16px">
+          <button class="btn primary" onclick="next()">Continue</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="1">
+        <div class="question">What is the main problem today?</div>
+        <div class="help">Choose the option that fits best.</div>
+        <div class="options">
+          <button class="btn" onclick="setPath('UTI')">Urine infection symptoms</button>
+          <button class="btn" onclick="setPath('Sore throat')">Sore throat</button>
+          <button class="btn" onclick="setPath('Sinusitis')">Sinus pain / sinusitis</button>
+          <button class="btn" onclick="setPath('Otitis')">Ear pain / ear infection</button>
+          <button class="btn" onclick="setPath('Shingles')">Shingles rash</button>
+          <button class="btn" onclick="setPath('Impetigo')">Impetigo / crusty skin infection</button>
+          <button class="btn" onclick="setPath('Bite')">Infected insect bite</button>
+        </div>
+        <button class="btn back" onclick="prev()">Back</button>
+      </div>
+
+      <div class="step" data-step="2">
+        <div class="question">Any urgent warning signs?</div>
+        <div class="help">Select yes if any apply: severe breathing trouble, collapse, confusion, very unwell, severe swelling, eye involvement, severe facial swelling, or other serious concern.</div>
+        <div class="options two">
+          <button class="btn" onclick="setRedFlag(true)">Yes</button>
+          <button class="btn" onclick="setRedFlag(false)">No</button>
+        </div>
+        <button class="btn back" onclick="prev()">Back</button>
+      </div>
+
+      <div class="step" data-step="3">
+        <div class="question">A few quick checks</div>
+        <div class="help">Answer these to see if Pharmacy First is likely suitable. For ear pain, this only helps identify people who may need pharmacist review — the pharmacist still needs to examine the ear.</div>
+        <div class="row" id="dynamicQuestions"></div>
+        <div class="options" style="margin-top:16px">
+          <button class="btn primary" onclick="next()">Continue</button>
+        </div>
+        <button class="btn back" onclick="prev()">Back</button>
+      </div>
+
+      <div class="step" data-step="4">
+        <div class="question">Confirm and finish</div>
+        <div class="help">Tap finish to show the result for staff.</div>
+        <div class="options"><button class="btn primary" onclick="finish()">Finish screening</button></div>
+        <button class="btn back" onclick="prev()">Back</button>
+      </div>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<script>
+let step=0,path='',redFlag=false,answers={};
+const pharmacistEmail='pharmacy.fwf21@nhs.net';
+
+const flow={
+'UTI':[
+ {key:'female',q:'Is the patient female?'},
+ {key:'age',q:'Is the patient aged 16 to 64?'},
+ {key:'pregnant',q:'Could the patient be pregnant?'},
+ {key:'symptoms',q:'Pain passing urine AND needing to go often?'}
+],
+'Sore throat':[
+ {key:'age',q:'Is the patient aged 5 or over?'},
+ {key:'score',q:'Are at least 3 of these present: fever, no cough, tonsil pus, quick symptom onset?'}
+],
+'Sinusitis':[
+ {key:'age',q:'Is the patient aged 12 or over?'},
+ {key:'duration',q:'Have symptoms lasted 10 days or more, or are they unusually severe?'}
+],
+'Otitis':[
+ {key:'age',q:'Is the patient aged 1 to 17?'},
+ {key:'symptoms',q:'Does the patient have ear pain or symptoms suggesting an ear infection?'}
+],
+'Shingles':[
+ {key:'age',q:'Is the patient aged 18 or over?'},
+ {key:'pregnant',q:'Could the patient be pregnant?'},
+ {key:'rash',q:'Is there a typical shingles rash started within the last 7 days?'}
+],
+'Impetigo':[
+ {key:'age',q:'Is the patient aged 1 or over?'},
+ {key:'rash',q:'Does it look like typical impetigo?'}
+],
+'Bite':[
+ {key:'age',q:'Is the patient aged 1 or over?'},
+ {key:'delay',q:'Has it been at least 48 hours since the bite or sting?'},
+ {key:'infection',q:'Does it look infected rather than just itchy?'}
+]
+};
+
+function setPath(p){path=p;answers={};next();renderDynamic();}
+function setRedFlag(v){redFlag=v;if(v){showResult('red');}else{next();renderDynamic();}}
+function next(){step=Math.min(4,step+1);render();}
+function prev(){step=Math.max(0,step-1);render();}
+function render(){
+  document.querySelectorAll('.step').forEach((el,i)=>el.classList.toggle('active',i===step));
+  document.getElementById('stepLabel').textContent='Step '+(step+1)+' of 5';
+  document.getElementById('fill').style.width=((step+1)/5*100)+'%';
+}
+function renderDynamic(){
+  const wrap=document.getElementById('dynamicQuestions'); wrap.innerHTML='';
+  (flow[path]||[]).forEach(item=>{
+    const card=document.createElement('div');
+    card.className='card'; card.style.padding='14px';
+    card.innerHTML='<div style="font-size:20px;font-weight:700;margin-bottom:12px">'+item.q+'</div><div class="options two"><button class="btn" data-k="'+item.key+'" data-v="yes">Yes</button><button class="btn" data-k="'+item.key+'" data-v="no">No</button></div>';
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll('button[data-k]').forEach(btn=>{
+    btn.onclick=()=>{
+      answers[btn.dataset.k]=btn.dataset.v;
+      btn.parentElement.querySelectorAll('.btn').forEach(b=>{b.style.background='#f8fbff';b.style.borderColor='var(--line)';b.style.color='var(--text)';});
+      btn.style.background='linear-gradient(135deg,var(--brand),var(--brand2))';
+      btn.style.color='#fff'; btn.style.borderColor='transparent';
+    };
+    if(answers[btn.dataset.k]===btn.dataset.v){
+      btn.style.background='linear-gradient(135deg,var(--brand),var(--brand2))';
+      btn.style.color='#fff'; btn.style.borderColor='transparent';
+    }
+  });
+}
+function finish(){showResult(evaluate());}
+function evaluate(){
+  if(redFlag) return 'red';
+  switch(path){
+    case 'UTI': return (answers.female==='yes'&&answers.age==='yes'&&answers.pregnant!=='yes'&&answers.symptoms==='yes')?'green':'amber';
+    case 'Sore throat': return (answers.age==='yes'&&answers.score==='yes')?'green':'amber';
+    case 'Sinusitis': return (answers.age==='yes'&&answers.duration==='yes')?'green':'amber';
+    case 'Otitis': return 'amber';
+    case 'Shingles': return (answers.age==='yes'&&answers.pregnant!=='yes'&&answers.rash==='yes')?'green':'amber';
+    case 'Impetigo': return (answers.age==='yes'&&answers.rash==='yes')?'green':'amber';
+    case 'Bite': return (answers.age==='yes'&&answers.delay==='yes'&&answers.infection==='yes')?'green':'amber';
+    default: return 'amber';
+  }
+}
+function getPatientDetails(){
+  return {
+    name:(document.getElementById('patientName').value||'').trim(),
+    dob:(document.getElementById('patientDob').value||'').trim(),
+    phone:(document.getElementById('patientPhone').value||'').trim(),
+    consent:document.getElementById('consentTick').checked
+  };
+}
+function getResultText(type){
+  if(type==='green') return 'LIKELY SUITABLE';
+  if(type==='amber') return 'PHARMACIST REVIEW';
+  return 'URGENT';
+}
+function generateMailto(type){
+  const p=getPatientDetails();
+  const subject='Pharmacy First pre-screen: '+getResultText(type)+(p.name ? ' - '+p.name : '');
+  const body=[
+    'CuraPharm Pharmacy First pre-screen',
+    '',
+    'Result: '+getResultText(type),
+    'Condition selected: '+(path || 'Not selected'),
+    '',
+    'Patient name: '+(p.name || 'Not entered'),
+    'Date of birth: '+(p.dob || 'Not entered'),
+    'Phone number: '+(p.phone || 'Not entered'),
+    'Consent ticked: '+(p.consent ? 'Yes' : 'No'),
+    '',
+    'Answers:',
+    JSON.stringify(answers,null,2),
+    '',
+    'Note: This is a local screening summary only and does not replace the pharmacist consultation record.'
+  ].join('\n');
+  window.location.href='mailto:'+pharmacistEmail+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function showResult(type){
+  document.getElementById('main').style.display='none';
+  const res=document.getElementById('result'); res.className='result active';
+  const p=getPatientDetails();
+  const pathLabel = path || 'Not selected';
+  const summary='<div class="summary"><div><b>Condition:</b> '+pathLabel+'</div><div><b>Name:</b> '+(p.name || 'Not entered')+'</div><div><b>DOB:</b> '+(p.dob || 'Not entered')+'</div><div><b>Phone:</b> '+(p.phone || 'Not entered')+'</div></div>';
+  const quick='<div class="quickBox"><div class="quickTitle">Quick staff summary</div><div class="quickGrid"><div class="quickItem"><b>Outcome:</b> '+getResultText(type)+'</div><div class="quickItem"><b>Selected pathway:</b> '+pathLabel+'</div><div class="quickItem"><b>NHSmail:</b> pharmacy.fwf21@nhs.net</div></div></div>';
+  let inner='';
+  if(type==='green'){
+    inner='<div class="panel green"><div class="resultPath">'+pathLabel+'</div><div class="icon">🟢</div><div class="big">LIKELY SUITABLE</div><div class="desc">This looks likely suitable for a <b>Pharmacy First</b> condition.</div>'+summary+quick+'<div class="staff">Please hand the iPad back to staff.</div><div class="actions"><button class="btn primary" onclick="generateMailto(\'green\')">Create NHSmail</button></div><div class="staffResetWrap"><button class="staffResetBtn" id="staffResetBtn" onmousedown="beginStaffPress()" onmouseup="cancelStaffPress()" onmouseleave="cancelStaffPress()" ontouchstart="beginStaffPress(event)" ontouchend="cancelStaffPress()" ontouchcancel="cancelStaffPress()">Staff reset</button><div class="staffHint" id="staffHint">Press and hold for 2 seconds</div></div></div>';
+  } else if(type==='amber'){
+    inner='<div class="panel amber"><div class="resultPath">'+pathLabel+'</div><div class="icon">🟠</div><div class="big">PHARMACIST REVIEW</div><div class="desc">Please ask the <b>pharmacist</b> to review this before deciding if Pharmacy First is suitable.</div>'+summary+quick+'<div class="staff">Please hand the iPad back to staff.</div><div class="actions"><button class="btn primary" onclick="generateMailto(\'amber\')">Create NHSmail</button></div><div class="staffResetWrap"><button class="staffResetBtn" id="staffResetBtn" onmousedown="beginStaffPress()" onmouseup="cancelStaffPress()" onmouseleave="cancelStaffPress()" ontouchstart="beginStaffPress(event)" ontouchend="cancelStaffPress()" ontouchcancel="cancelStaffPress()">Staff reset</button><div class="staffHint" id="staffHint">Press and hold for 2 seconds</div></div></div>';
+  } else {
+    inner='<div class="panel red"><div class="resultPath">'+pathLabel+'</div><div class="icon">🔴</div><div class="big">URGENT</div><div class="desc">This may need <b>urgent medical review</b>. Please alert staff immediately.</div>'+summary+quick+'<div class="staff">Please hand the iPad back to staff now.</div><div class="actions"><button class="btn primary" onclick="generateMailto(\'red\')">Create NHSmail</button></div><div class="staffResetWrap"><button class="staffResetBtn" id="staffResetBtn" onmousedown="beginStaffPress()" onmouseup="cancelStaffPress()" onmouseleave="cancelStaffPress()" ontouchstart="beginStaffPress(event)" ontouchend="cancelStaffPress()" ontouchcancel="cancelStaffPress()">Staff reset</button><div class="staffHint" id="staffHint">Press and hold for 2 seconds</div></div></div>';
+  }
+  res.innerHTML=inner;
+}
+function resetAll(){
+   step=0; path=''; redFlag=false; answers={};
+  document.getElementById('patientName').value='';
+  document.getElementById('patientDob').value='';
+  document.getElementById('patientPhone').value='';
+  document.getElementById('consentTick').checked=false;
+  document.getElementById('main').style.display='block';
+  const res=document.getElementById('result'); res.className='result'; res.innerHTML='';
+  render();
+}
+
+let staffResetTimer=null;
+function beginStaffPress(e){
+  if(e){ e.preventDefault(); }
+  const hint=document.getElementById('staffHint');
+  if(hint){ hint.style.display='block'; }
+  cancelStaffPress();
+  staffResetTimer=setTimeout(()=>{ resetAll(); }, 2000);
+}
+function cancelStaffPress(){
+  if(staffResetTimer){
+    clearTimeout(staffResetTimer);
+    staffResetTimer=null;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
