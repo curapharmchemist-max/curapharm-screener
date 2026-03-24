@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CuraPharm Pharmacy First Screener</title>
+
+<meta name="theme-color" content="#0f4c81">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CuraPharm">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--text:#15304a;--muted:#5d7287;--line:#dce6f0;--brand:#0f4c81;--brand2:#1e6aa8;--green:#1f8f4e;--amber:#c87b00;--red:#c53a3a;--greenbg:#e9f8ef;--amberbg:#fff4df;--redbg:#fdeaea;--radius:20px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -303,6 +312,15 @@ function cancelStaffPress(){
 }
 
 render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./service-worker.js').catch(function(err){
+      console.log('Service worker registration failed', err);
+    });
+  });
+}
+
 </script>
 </body>
 </html>
